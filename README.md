@@ -16,11 +16,11 @@
 
 ************************************************************************/
 ```
-This library gives you ready-to-go best practice crypto functions so you don't have to worry about getting crypto right.
+This library gives you ready-to-go best practice crypto functions, so you don't have to worry about getting crypto right.
 
-Crypto is a convenience API built on top of audited and secure cryptographic implementations like sodium (https://download.libsodium.org/doc/). We do all the necessary steps behind the scenes for every day app tasks like hashing passwords correctly or encrypting sensitive data for storing.
+Crypto is a convenience API built on top of audited and secure cryptographic implementations like sodium (https://download.libsodium.org/doc/). We do all the necessary steps behind the scenes for everyday app tasks like hashing passwords correctly or encrypting sensitive data for storing.
 
-This library will change accordingly if security industry best practices for supported tasks change. We also try to offer tools for migrating old data up to the new standards so upgrading old data would be just a click away.
+This library will change accordingly if the security industry best practices for supported tasks change. We also try to offer tools for migrating old data up to the new standards so upgrading old data would be just a click away.
 
 ### SUPPORTED TASKS
 
@@ -57,7 +57,7 @@ console.log(hashed_password) // -> "$argon2id$v=19$m=65536,..."
 
 Now you can store `hashed_password` in the database safely
 
-Or alternatively you can use callbacks (works with all other methods)
+Or alternatively, you can use callbacks (works with all other methods)
 
 ```javascript
 cdr.secure_password(received_password, (err, hashed_password) => {
@@ -83,16 +83,17 @@ That's it - one line for hashing, one line for verifying.
 
 ## SECURING DATA... SECURELY
 
-Encrypting data can be a hassle because to get it right, you need to know which algorithm is still safe, what's the optimum key length, how quantum computing will affect the algorithm, and bunch of other "small things" that can bite you in the end.
+Encrypting data can be a hassle because to get it right, you need to know which algorithm is still safe, what's the optimum key length, how quantum computing will affect the algorithm and a bunch of other "small things" that can bite you in the end.
 
-And on top of that you have to deal with converting different javascript variable types around...
+And on top of that, you have to deal with converting different javascript variable types around...
 
-Wouldn't it be great if there was a one-liner to just encrypt what you want? 
+Wouldn't it be great if there was a one-liner just to encrypt what you want? 
 
 ### ENCRYPT ALL THE DATA
-Encrypting something simple like text shouldn't be more than one liner so that's how easy it is with CryptoDoneRight. You don't even need to worry about creating a secure enough decryption password, that's done for you too.
+Encrypting something simple like text shouldn't be more than a one-liner, so that's how easy it is with CryptoDoneRight. You don't even need to worry about creating a secure enough decryption password, that's done for you too.
 
 > In case you are interested what happens behind the scenes: All data is encrypted with XChaCha20-Poly1305 where ChaCha20 encrypts your data and Poly1305 computes an authentication tag that will be used to verify in decryption phase that your encrypted data hasn't been tampered with. The reason why current recommendation is ChaCha20 instead of AES boils down to better performance with mobile devices without any provable decrease in security.
+
 
 ```javascript
 var private_text = "My credit card PIN is 3117"
@@ -143,8 +144,10 @@ console.log(decrypted_photo)
 // -> tests/photo.jpg
 ```
 
-## LOOKING FOR MORE ADVANCED APIS?
-If you are looking to build your own crypto functions you should jump straight to the source: https://github.com/jedisct1/libsodium.js
+## LOOKING FOR MORE CUSTOMIZABLE APIS?
+CryptoDoneRight is meant to be so simple that you don't need to worry about messing up. This means that all configuration that can be pre-set based on best practices will be pre-set and not configurable by the user.
+
+If you want something more you should jump straight to libsodium that gives you the foundational tools: https://github.com/jedisct1/libsodium.js
 
 ## LICENSE
 MIT
