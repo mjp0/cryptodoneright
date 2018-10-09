@@ -92,6 +92,8 @@ Wouldn't it be great if there was a one-liner to just encrypt what you want?
 ### ENCRYPT ALL THE DATA
 Encrypting something simple like text shouldn't be more than one liner so that's how easy it is with CryptoDoneRight. You don't even need to worry about creating a secure enough decryption password, that's done for you too.
 
+> In case you are interested what happens behind the scenes: All data is encrypted with XChaCha20-Poly1305 where ChaCha20 encrypts your data and Poly1305 computes an authentication tag that will be used to verify in decryption phase that your encrypted data hasn't been tampered with. The reason why current recommendation is ChaCha20 instead of AES boils down to better performance with mobile devices without any provable decrease in security.
+
 ```javascript
 var private_text = "My credit card PIN is 3117"
 var encrypted_text = await cdr.encrypt_data(private_text)
@@ -141,6 +143,8 @@ console.log(decrypted_photo)
 // -> tests/photo.jpg
 ```
 
+## LOOKING FOR MORE ADVANCED APIS?
+If you are looking to build your own crypto functions you should jump straight to the source: https://github.com/jedisct1/libsodium.js
 
 ## LICENSE
 MIT
