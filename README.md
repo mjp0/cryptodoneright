@@ -83,9 +83,9 @@ That's it - one line for hashing, one line for verifying.
 
 ## SECURING DATA... SECURELY
 
-Encrypting data can be a hassle because you need to know which algorithm is still safe, what's the optimum key length, and how quantum computing will affect the algorithm.
+Encrypting data can be a hassle because to get it right, you need to know which algorithm is still safe, what's the optimum key length, how quantum computing will affect the algorithm, and bunch of other "small things" that can bite you in the end.
 
-And you have to deal with converting different variable types around... 
+And on top of that you have to deal with converting different javascript variable types around...
 
 Wouldn't it be great if there was a one-liner to just encrypt what you want? 
 
