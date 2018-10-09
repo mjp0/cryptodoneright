@@ -1,0 +1,32 @@
+{
+  "name": "cryptodoneright",
+  "version": "1.0.1",
+  "keywords": ["crypto", "libsodium", "sodium", "hashing", "passwords", "encryption"],
+  "description": "Javascript Convenience Library For Crypto Best Practices",
+  "author": "Marko Polojärvi",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
+    "pretest": "npm run lint",
+    "test": "jest",
+    "compile-browser": "parcel build -o dist/cryptodoneright.min.js --global cdr -t browser src/browser.ts",
+    "compile-node": "tsc",
+    "build": "npm test && npm run compile-browser && npm run compile-node",
+    "syntaxcheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "jest": "^23.6.0",
+    "libsodium-wrappers-sumo": "^0.7.3",
+    "promised-callback": "^1.0.5",
+    "protobufjs": "^6.8.8"
+  },
+  "devDependencies": {
+    "@types/libsodium-wrappers": "^0.7.0",
+    "nanoassert": "^1.1.0",
+    "parcel": "^1.10.2",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3"
+  }
+}

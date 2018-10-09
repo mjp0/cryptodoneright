@@ -1,0 +1,6 @@
+node_modules
+lib
+_dev
+coverage
+dist
+.cache
