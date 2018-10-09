@@ -3,8 +3,18 @@
   "version": "1.0.1",
   "keywords": ["crypto", "libsodium", "sodium", "hashing", "passwords", "encryption"],
   "description": "Javascript Convenience Library For Crypto Best Practices",
-  "author": "Marko Polojärvi",
+  "author": {
+    "name": "Marko Polojärvi",
+    "email": "marko@machian.com"
+  },
   "main": "dist/index.js",
+  "repository": {
+    "url": "git+https://gitlab.com/machianist/cryptodoneright",
+    "type": "git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/machianist/cryptodoneright/issues"
+  },
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
     "pretest": "npm run lint",
