@@ -1,7 +1,14 @@
 {
   "name": "cryptodoneright",
   "version": "1.0.3",
-  "keywords": ["crypto", "libsodium", "sodium", "hashing", "passwords", "encryption"],
+  "keywords": [
+    "crypto",
+    "libsodium",
+    "sodium",
+    "hashing",
+    "passwords",
+    "encryption"
+  ],
   "description": "Javascript Convenience Library For Crypto Best Practices",
   "author": {
     "name": "Marko Polojärvi",
@@ -26,6 +33,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@types/jest": "^23.3.5",
     "jest": "^23.6.0",
     "libsodium-wrappers-sumo": "^0.7.3",
     "promised-callback": "^1.0.5",

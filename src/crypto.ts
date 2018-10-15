@@ -1,7 +1,9 @@
 import async_helpers from "promised-callback"
 import protobuf from "protobufjs"
 import * as datas from "./tasks/data"
+import * as keys from "./tasks/keys"
 import pw from "./tasks/passwords"
+import * as signverify from "./tasks/sign_verify"
 
 // PASSWORD HASHING ///////////////////////////////////////////////////////////////////////////////////
 export async function secure_password(
@@ -47,41 +49,8 @@ export async function encrypt_data(data: any, callback?: (err?: any, response?: 
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
 
-    // We are not going to deal with nulls or undefined
-    if (!data) {
-      error("Data is either null or undefined. Can't work with that.")
-      return
-    }
-
     // What type of data it is?
-    let type: string = typeof data
-
-    switch (typeof data) {
-      case "boolean":
-        type = "bool"
-        break
-      case "number":
-        type = "integer"
-
-        // check if float
-        if (Number(data) === data && data % 1 !== 0) {
-          type = "float"
-        }
-        break
-      case "string":
-        type = "string"
-        break
-      case "object":
-        // check if it's a buffer
-        if (Buffer.isBuffer(data)) {
-          type = "bytes"
-        } else {
-          type = "message"
-        }
-        break
-      default:
-        break
-    }
+    const type = await get_data_type(data).catch(error)
 
     // if not Buffer already, make it a Buffer
     if (type !== "bytes") {
@@ -155,5 +124,64 @@ export async function decrypt_data(
       }
     }
     done(decrypted_decoded_data)
+  })
+}
+
+// KEYS & SIGN & VERIFY /////////////////////////////////////////////////////////////////////////////
+export async function generate_keys(
+  seed?: string,
+  callback?: (err?: any, response?: { public: string; private: string }) => any,
+): Promise<any> {
+  return await new Promise(async (resolve: any, reject: any) => {
+    const { done, error } = async_helpers(resolve, reject, callback)
+    const keypair = await keys.generate().catch(error)
+    done(keypair)
+  })
+}
+
+export const derive_public_key = keys.derive_public_key
+export const generate_master_key = keys.generate_master_key
+export const derive_subkey = keys.derive_subkey
+
+export const sign_data = signverify.sign_data
+export const verify_data = signverify.verify_data
+
+// UTILITIES //////////////////////////////////////////////////////////////////////////////////////
+export async function get_data_type(data: any, callback?: (err?: any, response?: string) => any): Promise<any> {
+  return await new Promise(async (resolve: any, reject: any) => {
+    const { done, error } = async_helpers(resolve, reject, callback)
+    // We are not going to deal with nulls or undefined
+    if (!data) {
+      error("Data is either null or undefined. Can't work with that.")
+      return
+    }
+    let type: string = typeof data
+    switch (typeof data) {
+      case "boolean":
+        type = "bool"
+        break
+      case "number":
+        type = "integer"
+
+        // check if float
+        if (Number(data) === data && data % 1 !== 0) {
+          type = "float"
+        }
+        break
+      case "string":
+        type = "string"
+        break
+      case "object":
+        // check if it's a buffer
+        if (Buffer.isBuffer(data)) {
+          type = "bytes"
+        } else {
+          type = "message"
+        }
+        break
+      default:
+        break
+    }
+    done(type)
   })
 }

@@ -144,7 +144,51 @@ console.log(decrypted_photo)
 // -> tests/photo.jpg
 ```
 
-## LOOKING FOR MORE CUSTOMIZABLE APIS?
+## SIGNING AND VERIFYING DATA
+When it comes to the fundamentals of secure communication, being able to sign data for safe transfer and verify the data we received is pretty much right there in the top 1.
+
+Before you can sign anything, you need a key pair where one key is for your eyes only that you use for signing and a counterpart key that you can give other people so they can verify your signature.
+
+### GENERATE A NEW KEYPAIR
+
+> CDR uses ed25519 asymmetric signing algorithm that's also being used in bitcoin for signing transactions. One could say it's been battle-tested quite hard.
+
+```javascript
+var keypair = await cdr.generate_keys()
+
+console.log(keypair)
+// -> { type: "ed25519", private: "4fDag43...", public: "52gaAbD..." }
+```
+
+**Remember: only share your `public` key and never `private` key.**
+
+### SIGNING DATA
+Now that we have our keypair we can sign data. Just like data encryption functions, signing also works with all javascript data types out-of-the-box.
+
+```javascript
+var text = "super secret message"
+var signature = await cdr.sign_data(text, keypair.private)
+
+console.log(signature)
+// -> "ga4FDSAk99j..."
+```
+
+CDR will return only the signature and leave it up to you whether you want to encrypt your data before sending. The only thing you need to remember is that the data needs to be in the same type in verification as it was when signing.
+
+
+### VERIFYING DATA
+Verifying whether the data is exactly as the sender intended is yet another one-liner.
+
+```javascript
+var received_text = "super secret message"
+var received_signature = "ga4FDSAk99j..."
+var received_public_key = "52gaAbD..."
+
+var is_valid = await cdr.verify_data(received_text, received_signature, received_public_key)
+// -> true
+```
+
+## LOOKING FOR MORE CUSTOMIZATION?
 CryptoDoneRight is meant to be so simple that you don't need to worry about messing up. This means that all configuration that can be pre-set based on best practices will be pre-set and not configurable by the user.
 
 If you want something more you should jump straight to libsodium that gives you the foundational tools: https://github.com/jedisct1/libsodium.js
