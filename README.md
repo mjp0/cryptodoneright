@@ -40,7 +40,7 @@ Then it's time to get going. First, import cryptodoneright
 
 `import cdr from 'cryptodoneright'`
 
-Or if you need to run it in the browser, grab /dist/cryptodoneright.min.js and add that on your page. All function will be under `cdr` global variable.
+Or if you need to run it in the browser, grab /dist/cryptodoneright.min.js and add that on your page. All function will be under `cdr` global variable. **We don't recommend browser usage until we have size-optimized version of the library, sorry.**
 
 ## HANDLING PASSWORDS SECURELY
 All password hashing is done with Argon2, the password-hashing function that won the Password Hashing Competition (https://password-hashing.net/)

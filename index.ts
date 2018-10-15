@@ -1,3 +1,3 @@
-import * as api from "./src"
+import api from "./src"
 
 export default api

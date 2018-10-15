@@ -39,7 +39,6 @@ describe("Signing and Verification", () => {
   test("should sign and verify text (await/async & callback)", async () => {
     const text = "How to paint endless paintings 101: [todo: the rest]"
     const signed_text = await Crypto.sign_data(keypair.private, text)
-    console.log(text.length, signed_text.length)
     expect(typeof signed_text).toEqual("string")
     const verified_text = await Crypto.verify_data(signed_text, text, keypair.public)
     expect(verified_text).toBeTruthy()

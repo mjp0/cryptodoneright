@@ -1,3 +1,3 @@
 import * as crypto from "./crypto"
 
-export default crypto
+export default { ...crypto }
