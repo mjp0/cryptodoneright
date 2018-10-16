@@ -26,11 +26,11 @@ This library will change accordingly if the security industry best practices for
 
 - [x] Handling passwords securely
 - [x] Encrypting and decrypting all the data
-
+- [X] Generating public & private keypairs
+- [X] Signing and verifying data
+- 
 ### TASKS COMING SOON
 - [ ] Generating random numbers and strings
-- [ ] Generating public & private keypairs
-- [ ] Signing and verifying data
 
 Before doing anything else get CryptoDoneRight from NPM: 
 
