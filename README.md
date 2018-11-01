@@ -28,9 +28,10 @@ This library will change accordingly if the security industry best practices for
 - [x] Encrypting and decrypting all the data
 - [X] Generating public & private keypairs
 - [X] Signing and verifying data
-- 
+- [X] Generating random numbers and strings
+  
 ### TASKS COMING SOON
-- [ ] Generating random numbers and strings
+- What do you need? Let me know at https://twitter.com/markopolojarvi.
 
 Before doing anything else get CryptoDoneRight from NPM: 
 
@@ -186,6 +187,15 @@ var received_public_key = "52gaAbD..."
 
 var is_valid = await cdr.verify_data(received_text, received_signature, received_public_key)
 // -> true
+```
+
+## GENERATING RANDOM STRINGS
+Sometimes you just need a random string for a password or something. CDR gives you a one-liner that delivers completely random stuff derived from the most random source possible (varies in different platforms).
+
+```javascript
+var len = 32 // how long of a string you need
+var random_string = await cdr.generate_random_string(len)
+// -> "3g34Adf23123fastjk234JdsaVsdfaKT"
 ```
 
 ## LOOKING FOR MORE CUSTOMIZATION?

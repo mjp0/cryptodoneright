@@ -3,6 +3,7 @@ import protobuf from "protobufjs"
 import * as datas from "./tasks/data"
 import * as keys from "./tasks/keys"
 import pw from "./tasks/passwords"
+import * as random from "./tasks/random"
 import * as signverify from "./tasks/sign_verify"
 
 // PASSWORD HASHING ///////////////////////////////////////////////////////////////////////////////////
@@ -145,6 +146,10 @@ export const derive_subkey = keys.derive_subkey
 
 export const sign_data = signverify.sign_data
 export const verify_data = signverify.verify_data
+
+// RANDOM STRINGS /////////////////////////////////////////////////////////////////////////////////
+
+export const generate_random_string = random.random_string
 
 // UTILITIES //////////////////////////////////////////////////////////////////////////////////////
 export async function get_data_type(data: any, callback?: (err?: any, response?: string) => any): Promise<any> {
