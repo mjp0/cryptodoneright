@@ -80,4 +80,4 @@ export async function decrypt(
   })
 }
 
-export default { encrypt, decrypt }
+export default { encrypt, decrypt, encrypt_with_key }
