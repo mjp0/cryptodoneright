@@ -27,6 +27,37 @@ export async function encrypt(data: Buffer, callback?: (err?: any, response?: Bu
   })
 }
 
+export async function encrypt_with_key(
+  data: Buffer,
+  key_hex: string,
+  callback?: (err?: any, response?: Buffer) => any,
+): Promise<any> {
+  return await new Promise(async (resolve: any, reject: any) => {
+    const { done, error } = async_helpers(resolve, reject, callback)
+    if (key_hex.length !== 64) {
+      error("bad key length")
+      return
+    }
+    await _sodium.ready
+    const sodium = _sodium
+    const key = sodium.from_hex(key_hex)
+    const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+    const [ state_out, nonce ] = [ res.state, res.header ]
+    const encrypted_data = sodium.crypto_secretstream_xchacha20poly1305_push(
+      state_out,
+      data,
+      null,
+      sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL,
+    )
+
+    done({
+      encrypted_data,
+      key: sodium.to_hex(key),
+      nonce: sodium.to_hex(nonce),
+    })
+  })
+}
+
 export async function decrypt(
   encrypted_data: Buffer,
   key_hex: string,

@@ -78,6 +78,42 @@ export async function encrypt_data(data: any, callback?: (err?: any, response?: 
   })
 }
 
+export async function encrypt_data_with_key(
+  key: string,
+  data: any,
+  callback?: (err?: any, response?: Buffer) => {},
+): Promise<any> {
+  return await new Promise(async (resolve: any, reject: any) => {
+    const { done, error } = async_helpers(resolve, reject, callback)
+
+    // What type of data it is?
+    const type = await get_data_type(data).catch(error)
+
+    // if not Buffer already, make it a Buffer
+    if (type !== "bytes") {
+      if (type === "message") {
+        data = Buffer.from(JSON.stringify(data))
+      } else {
+        data = Buffer.from(data.toString())
+      }
+    }
+
+    const encrypted_data_container = encrypted_data_schema.create({ data, type })
+
+    // console.log(`message = ${JSON.stringify(message)}`)
+
+    const serialized_data = encrypted_data_schema.encode(encrypted_data_container).finish()
+    // console.log(`buffer = ${Array.prototype.toString.call(buffer)}`)
+
+    const encrypted_data = await datas.encrypt_with_key(Buffer.from(serialized_data), key)
+
+    done({
+      encrypted_data: encrypted_data.encrypted_data,
+      password: `${encrypted_data.key}|${encrypted_data.nonce}`,
+    })
+  })
+}
+
 export async function decrypt_data(
   encrypted_data: Buffer,
   password: string,

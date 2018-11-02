@@ -134,6 +134,17 @@ console.log(encrypted_photo)
 // -> { encrypted_data: Uint8Array, password: "432fadvxasdf..."}
 ```
 
+**You can use your own key if you want**
+```javascript
+// key has to be 64 characters long
+var key = await cdr.generate_random_string(64)
+var private_text = "My credit card PIN is 3117"
+var encrypted_text = await cdr.encrypt_data_with_key(key, private_text)
+
+console.log(encrypted_text)
+// -> { encrypted_data: Uint8Array, password: "432fadvxasdf..."}
+```
+
 ### DECRYPTING
 Decrypting is pretty self-explanatory. Data will be automatically converted into same format as it were when you encrypted it.
 ```javascript

@@ -1,7 +1,19 @@
 import fs from "fs"
 import Crypto from "../src/"
 describe("Data", () => {
-  test("should encrypt and decrypt text (await/async & callback)", async () => {
+  test("should encrypt and decrypt text with preset key", async () => {
+    const key = await Crypto.generate_random_string(64)
+    const text = "How to paint endless paintings 101: [todo: the rest]"
+    const encrypted_text = await Crypto.encrypt_data_with_key(key, text)
+    expect(encrypted_text).toHaveProperty("encrypted_data")
+    expect(encrypted_text).toHaveProperty("password")
+    expect(encrypted_text.password).toHaveLength(113)
+    expect(encrypted_text.password.slice(0, 64)).toEqual(key)
+    const decrypted_text = await Crypto.decrypt_data(encrypted_text.encrypted_data, encrypted_text.password)
+    expect(decrypted_text).toEqual(text)
+  })
+
+  test("should encrypt and decrypt text", async () => {
     const text = "How to paint endless paintings 101: [todo: the rest]"
     const encrypted_text = await Crypto.encrypt_data(text)
     expect(encrypted_text).toHaveProperty("encrypted_data")
@@ -11,7 +23,7 @@ describe("Data", () => {
     expect(decrypted_text).toEqual(text)
   })
 
-  test("should encrypt and decrypt json (await/async & callback)", async () => {
+  test("should encrypt and decrypt json", async () => {
     const json = { foo: "bar " }
     const encrypted_json = await Crypto.encrypt_data(json)
     expect(encrypted_json).toHaveProperty("encrypted_data")
@@ -21,7 +33,7 @@ describe("Data", () => {
     expect(decrypted_json).toEqual(json)
   })
 
-  test("should encrypt and decrypt integers and floats (await/async & callback)", async () => {
+  test("should encrypt and decrypt integers and floats", async () => {
     const int = 4
     const encrypted_int = await Crypto.encrypt_data(int)
     expect(encrypted_int).toHaveProperty("encrypted_data")
