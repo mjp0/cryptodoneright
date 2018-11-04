@@ -1,6 +1,7 @@
 import async_helpers from "promised-callback"
 import protobuf from "protobufjs"
 import * as datas from "./tasks/data"
+import * as hashes from "./tasks/hash"
 import * as keys from "./tasks/keys"
 import pw from "./tasks/passwords"
 import * as random from "./tasks/random"
@@ -44,6 +45,9 @@ const encrypted_data_proto: any = new protobuf.Type("encrypted")
   .add(new protobuf.Field("data", 2, "bytes"))
 const proto_root = new protobuf.Root().define("data").add(encrypted_data_proto)
 const encrypted_data_schema = proto_root.lookupType("data.encrypted")
+
+// COMMON HASHING///////////////////////////////////////////////////////////////////////////////////
+export const hash = hashes.hash
 
 // DATA ENCRYPTING AND DECRYPTING //////////////////////////////////////////////////////////////////
 export async function encrypt_data(data: any, callback?: (err?: any, response?: Buffer) => {}): Promise<any> {
