@@ -16,23 +16,31 @@
 
 ************************************************************************/
 ```
-This library gives you ready-to-go best practice crypto functions, so you don't have to worry about getting crypto right.
+**This library gives you ready-to-go best practice crypto as one-liner functions.**
 
-Crypto is a convenience API built on top of audited and secure cryptographic implementations like sodium (https://download.libsodium.org/doc/). We do all the necessary steps behind the scenes for everyday app tasks like hashing passwords correctly or encrypting sensitive data for storing.
+CryptoDoneRight is a convenience API built on top of audited and secure cryptographic implementations like sodium (https://download.libsodium.org/doc/). We do all the necessary steps behind the scenes for everyday app tasks like hashing passwords correctly or encrypting sensitive data for storing.
 
-This library will change accordingly if the security industry best practices for supported tasks change. We also try to offer tools for migrating old data up to the new standards so upgrading old data would be just a click away.
+## FEATURES
+- Secures, signs and verifies passwords and all types of data
+- Seamless encryption and decryption flow: `string|number|object|buffer in > string|number|object|buffer out`
+- No configuration required, everything is preset to best practices
+- Everything is a one-liner
+- Pure Javascript, no native modules
 
-### SUPPORTED TASKS
+This library will change accordingly if the security industry best practices change. We also try to offer tools for migrating old data up to the new standards so upgrading old data would be just a click away - by making your job easier to migrate your system to have better security measures, we protect our own data as your users better.
 
-- [x] Handling passwords securely
-- [x] Encrypting and decrypting all the data
-- [X] Generating public & private keypairs
-- [X] Signing and verifying data
-- [X] Generating random numbers and strings
+### COMMON SUPPORTED CRYPTO TASKS
+
+- [x] Handling passwords securely (Argon2)
+- [x] Encrypting and decrypting data (XChaCha20-Poly1305)
+- [x] Generating public & private keys (ed25519)
+- [x] Signing and verifying data with public and private keys (ed25519)
+- [x] Generating random numbers and strings (supports native randomness generators)
   
-### TASKS COMING SOON
-- What do you need? Let me know at https://twitter.com/markopolojarvi.
+#### Need more functionality?
+- Need something more? Tell me at https://twitter.com/markopolojarvi.
 
+## GETTING STARTED
 Before doing anything else get CryptoDoneRight from NPM: 
 
 > npm i cryptodoneright -g
@@ -41,24 +49,25 @@ Then it's time to get going. First, import cryptodoneright
 
 `import cdr from 'cryptodoneright'`
 
-Or if you need to run it in the browser, grab /dist/cryptodoneright.min.js and add that on your page. All function will be under `cdr` global variable. **We don't recommend browser usage until we have size-optimized version of the library, sorry.**
+Or if you need to run it in the browser, grab /dist/cryptodoneright.min.js and add that on your page. All function will be under `cdr` global variable. **We don't recommend browser usage until we have size-optimized version of the library. This is being actively worked on. Sorry.**
 
 ## HANDLING PASSWORDS SECURELY
 All password hashing is done with Argon2, the password-hashing function that won the Password Hashing Competition (https://password-hashing.net/)
 
 ### HASH ALL THE PASSWORDS
-We all want to store passes securely but knowing what hashing function to use and how to set it up right is a pita. Wouldn't it be nice to have a one-liner?
+Send the password you got as a plain text to `secure_password` function and you will get back a hash as a string. Hash string can be stored into a database as-is and it will be used to verify the password later.
 
 ```javascript
-var received_password = 'endl3ss'
-var hashed_password = await cdr.secure_password(received_password)
+const password = 'endl3ss'
+const hashed_password = await cdr.secure_password(password)
 
 console.log(hashed_password) // -> "$argon2id$v=19$m=65536,..."
 ```
 
 Now you can store `hashed_password` in the database safely
 
-Or alternatively, you can use callbacks (works with all other methods)
+#### Callbacks supported also
+CDR uses await/async style as the primary but alternatively, you can use callbacks (works with all other methods). The last argument is always callback `function(error, data)`.
 
 ```javascript
 cdr.secure_password(received_password, (err, hashed_password) => {
@@ -67,28 +76,26 @@ cdr.secure_password(received_password, (err, hashed_password) => {
 ```
 
 ### VERIFY GIVEN PASSWORD
-How about when you want to check if user's password is correct?
+Check if user's password is correct by giving `verify_password` function the password you got from the user as plain text and the hash you got from your database. Note that this method works only with hashes generated with `secure_password` and libsodium.js library. 
 
 ```javascript
 var received_password = 'endl3ss'
-var password_in_database = hashed_password // let's pretend this came from db
-// -> "$argon2id$v=19$m=65536,..."
+var password_in_database = "$argon2id$v=19$m=65536,..."
 
-var is_same = await cdr.verify_password(received_password, password_in_database)
+var is_verified = await cdr.verify_password(received_password, password_in_database)
 
-console.log(is_same) // -> true
+console.log(is_verified) // -> true
 ```
 
 That's it - one line for hashing, one line for verifying.
 
 
-## SECURING DATA... SECURELY
+## SECURING DATA. PROPERLY.
 
-Encrypting data can be a hassle because to get it right, you need to know which algorithm is still safe, what's the optimum key length, how quantum computing will affect the algorithm and a bunch of other "small things" that can bite you in the end.
+Encrypting data properly safely can be a hassle because to get it right, you need to know which algorithm is still safe, what's the optimum key length, whether quantum computing will affect the algorithm and a bunch of other "small things" that can bite you. CryptoDoneRight uses the latest secure and mobile-friendly encryption algorithm XChaCha20-Poly1305 which gives you the same security guarantees as industry standard AES256 and as a bonus is much more performant, especially on the phones, and fixes a bunch of theoretical attack vectors in AES256.
 
-And on top of that, you have to deal with converting different javascript variable types around...
-
-Wouldn't it be great if there was a one-liner just to encrypt what you want? 
+#### All Javascript variable types supported
+For developers to use crypto properly everywhere, we need to make it as easy as possible. For this reason CDR supports encrypting and decrypting without having to somehow modify the data structure or format.
 
 ### ENCRYPT ALL THE DATA
 Encrypting something simple like text shouldn't be more than a one-liner, so that's how easy it is with CryptoDoneRight. You don't even need to worry about creating a secure enough decryption password, that's done for you too.
@@ -106,7 +113,7 @@ console.log(encrypted_text)
 
 Don't save the password with the encrypted_data, it kinda defeats the point...
 
-**Works with JSON directly**
+**Works with JSON/objects directly**
 ```javascript
 var json = { wip_texts: [ encrypted_text ] }
 var encrypted_json = await cdr.encrypt_data(json)
@@ -146,24 +153,19 @@ console.log(encrypted_text)
 ```
 
 ### DECRYPTING
-Decrypting is pretty self-explanatory. Data will be automatically converted into same format as it were when you encrypted it.
+Decrypting is very straight-forward. Data will be automatically converted into same format as it were when you encrypted it.
 ```javascript
-var encrypted_data = encrypted_photo.encrypted_data
-var password = encrypted.password
-var decrypted_photo = await cdr.decrypt_data(encrypted_data, password)
+var decrypted_data = await cdr.decrypt_data(encrypted_data, password)
 
-console.log(decrypted_photo)
-// -> tests/photo.jpg
+console.log(decrypted_data) // in the same format as it was before encrypting
 ```
 
 ## SIGNING AND VERIFYING DATA
-When it comes to the fundamentals of secure communication, being able to sign data for safe transfer and verify the data we received is pretty much right there in the top 1.
+Before you can sign anything, you need a key pair where one key is used to proving it's you and the other one you give to other so they can verify it's you. In crypto world the keys are named public and private. Public key can be given to anyone freely. Private key gives you the power to sign messages and those who have your public key can verify the message is from you and that the message hasn't been modified by anybody while in transit.
 
-Before you can sign anything, you need a key pair where one key is for your eyes only that you use for signing and a counterpart key that you can give other people so they can verify your signature.
+### GENERATE A NEW KEYS
 
-### GENERATE A NEW KEYPAIR
-
-> CDR uses ed25519 asymmetric signing algorithm that's also being used in bitcoin for signing transactions. One could say it's been battle-tested quite hard.
+> CDR uses ed25519 asymmetric signing algorithm that's also being used in bitcoin for creating transactions. One could say it's been battle-tested quite hard.
 
 ```javascript
 var keypair = await cdr.generate_keys()
@@ -179,24 +181,24 @@ Now that we have our keypair we can sign data. Just like data encryption functio
 
 ```javascript
 var text = "super secret message"
-var signature = await cdr.sign_data(text, keypair.private)
+var signature = await cdr.sign_data(text, private_key)
 
 console.log(signature)
 // -> "ga4FDSAk99j..."
 ```
 
-CDR will return only the signature and leave it up to you whether you want to encrypt your data before sending. The only thing you need to remember is that the data needs to be in the same type in verification as it was when signing.
+CDR will return only the signature and leave it up to you whether you want to encrypt your data before sending. The only thing you need to remember is that when you want to verify some data with a public key, the data has to be in the same format as it was when it was signed. So if a Buffer was signed, you can't verify UInt8Array, you need it as Buffer.
 
 
 ### VERIFYING DATA
-Verifying whether the data is exactly as the sender intended is yet another one-liner.
+Verifying whether the data is exactly the same as what the sender sent.
 
 ```javascript
 var received_text = "super secret message"
 var received_signature = "ga4FDSAk99j..."
-var received_public_key = "52gaAbD..."
+var sender_public_key = "52gaAbD..."
 
-var is_valid = await cdr.verify_data(received_text, received_signature, received_public_key)
+var is_valid = await cdr.verify_data(received_text, received_signature, sender_public_key)
 // -> true
 ```
 
