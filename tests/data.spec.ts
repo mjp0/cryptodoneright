@@ -1,6 +1,62 @@
 import fs from "fs"
+import { Stream } from "stream"
 import Crypto from "../src/"
+
 describe("Data", () => {
+  test("should encrypt and decrypt a stream of binary data with a preset key", async (done) => {
+    // Apologies for anybody who has to read this test...
+
+    const readableStreamEncrypt = new Stream.Readable()
+    const writableStreamEncrypt = new Stream.Writable()
+    const readableStreamDecrypt = new Stream.Readable()
+    const writableStreamDecrypt = new Stream.Writable()
+
+    const bin = fs.readFileSync(__dirname + "/photo.jpg")
+
+    let creds: any = {}
+    const encrypted_buffer: Uint8Array[] = []
+    const decrypted_buffer: Uint8Array[] = []
+    function credentials_callback(err: null, credentials?: { key: string; nonce: string }) {
+      creds = credentials
+      expect(creds.nonce).toBeDefined()
+      expect(creds.key).toEqual(key)
+    }
+
+    const key = await Crypto.generate_random_string(64)
+    const stream_encryptor = Crypto.encrypt_stream_with_key(key, credentials_callback)
+
+    readableStreamEncrypt.pipe(stream_encryptor).pipe(writableStreamEncrypt)
+    writableStreamEncrypt._write = (data: any | object) => {
+      if (data) {
+        expect(typeof data).toEqual("object")
+        encrypted_buffer.push(data)
+      }
+    }
+    stream_encryptor.on("finish", () => {
+      const encrypted_combined = Buffer.concat(encrypted_buffer)
+      expect(typeof encrypted_combined).toEqual("object")
+      const stream_decryptor = Crypto.decrypt_stream_with_key(creds.key, creds.nonce)
+      readableStreamDecrypt.pipe(stream_decryptor).pipe(writableStreamDecrypt)
+      writableStreamDecrypt._write = (data: any | object) => {
+        if (data) {
+          expect(typeof data).toEqual("object")
+          decrypted_buffer.push(data)
+        }
+      }
+
+      stream_decryptor.on("finish", () => {
+        const decrypted_combined = Buffer.concat(decrypted_buffer)
+        expect(typeof decrypted_combined).toEqual("object")
+        expect(decrypted_combined).toEqual(bin)
+        done()
+      })
+      readableStreamDecrypt.push(encrypted_combined)
+      readableStreamDecrypt.push(null)
+    })
+    readableStreamEncrypt.push(bin)
+    readableStreamEncrypt.push(null)
+  })
+
   test("should encrypt and decrypt text with preset key", async () => {
     const key = await Crypto.generate_random_string(64)
     const text = "How to paint endless paintings 101: [todo: the rest]"

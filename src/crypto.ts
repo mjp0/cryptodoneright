@@ -1,5 +1,8 @@
 import async_helpers from "promised-callback"
 import protobuf from "protobufjs"
+// import { Stream } from "stream"
+// import StreamChunkify from "stream-chunkify"
+import through2 from "through2"
 import * as datas from "./tasks/data"
 import * as hashes from "./tasks/hash"
 import * as keys from "./tasks/keys"
@@ -166,6 +169,97 @@ export async function decrypt_data(
     }
     done(decrypted_decoded_data)
   })
+}
+
+export function encrypt_stream_with_key(
+  key: string,
+  credentials_callback?: (err: any, credentials?: { key: string; nonce: string }) => void,
+) {
+  // const writableStream = new Stream.Writable()
+  // const readableStream = new Stream.Readable()
+  // writableStream.pipe(StreamChunkify(100)).pipe().pipe(readableStream)
+  let session: any = {
+    sodium: null,
+    key: null,
+    nonce: null,
+    state_out: null,
+  }
+
+  const transform = async function(this: any, chunk: any, enc: any, callback: any) {
+    let rev = Buffer.from("")
+    if (chunk) {
+      rev = await datas.encrypt_chunk(chunk, session.state_out).catch((error: any) => {
+        throw new Error(error)
+      })
+    }
+    this.push(rev)
+    callback()
+  }
+
+  const flush = async function(this: any, next: any) {
+    const rev = await datas.encrypt_chunk(Buffer.alloc(0), session.state_out, true).catch((error: any) => {
+      throw new Error(error)
+    })
+    this.push(rev)
+    // this.emit("finish")
+  }
+  const pipe = through2(transform, flush)
+  pipe.pause()
+
+  datas.get_encryption_header(key, (err: any, headers: any) => {
+    if (err) {
+      throw new Error(err)
+    }
+    session = headers
+
+    if (typeof credentials_callback === "function") {
+      credentials_callback(null, {
+        key: session.sodium.to_hex(session.key),
+        nonce: session.sodium.to_hex(session.nonce),
+      })
+    }
+    pipe.resume()
+  })
+
+  return pipe
+}
+
+export function decrypt_stream_with_key(key_hex: string, nonce_hex: string) {
+  // const writableStream = new Stream.Writable()
+  // const readableStream = new Stream.Readable()
+  // writableStream.pipe(StreamChunkify(100)).pipe().pipe(readableStream)
+  let session: any = {
+    sodium: null,
+    state_in: null,
+  }
+
+  const transform = async function(this: any, chunk: any, enc: any, callback: any) {
+    let decrypted_data = Buffer.from("")
+    if (chunk) {
+      decrypted_data = await datas.decrypt_chunk(chunk, session.state_in).catch((error: any) => {
+        throw new Error(error)
+      })
+    }
+    this.push(decrypted_data)
+    callback()
+  }
+
+  const flush = async function(this: any) {
+    this.emit("finished")
+  }
+  const pipe = through2(transform, flush)
+  pipe.pause()
+
+  datas.get_decryption_header(key_hex, nonce_hex, (err: any, headers: any) => {
+    if (err) {
+      throw new Error(err)
+    }
+    session = headers
+
+    pipe.resume()
+  })
+
+  return pipe
 }
 
 // KEYS & SIGN & VERIFY /////////////////////////////////////////////////////////////////////////////
