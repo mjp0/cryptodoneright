@@ -154,7 +154,9 @@ console.log(encrypted_text)
 ```
 
 **Works with streams**
+
 CDR supports encrypting streams out-of-the-box but process is a bit more involved than a one-liner. Please note that since streams are buffers, stream encryption works only with buffers.
+
 ```javascript
 // key has to be 64 characters long
 var key = await cdr.generate_random_string(64)
@@ -181,7 +183,9 @@ console.log(decrypted_data) // in the same format as it was before encrypting
 ```
 
 **Works with streams**
+
 CDR supports decrypting streams out-of-the-box but process is a bit more involved than a one-liner. Please note that since streams are buffers, stream decryption returns buffers so you have to convert your data back to the right format.
+
 ```javascript
 var readable_stream = fs.createReadStream("encrypted_output.bin")
 
