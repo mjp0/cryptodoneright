@@ -22,6 +22,7 @@ CryptoDoneRight is a convenience API built on top of audited and secure cryptogr
 
 ## FEATURES
 - Secures, signs and verifies passwords and all types of data
+- Works with NodeJS streams out-of-the-box
 - Seamless encryption and decryption flow: `string|number|object|buffer in > string|number|object|buffer out`
 - No configuration required, everything is preset to best practices
 - Everything is a one-liner
