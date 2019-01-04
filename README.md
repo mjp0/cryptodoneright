@@ -32,7 +32,8 @@ This library will change accordingly if the security industry best practices cha
 ### COMMON SUPPORTED CRYPTO TASKS
 
 - [x] Handling passwords securely (Argon2)
-- [x] Encrypting and decrypting data (XChaCha20-Poly1305)
+- [x] Syncronous encrypting and decrypting data (XChaCha20-Poly1305)
+- [x] Supports encrypting and decrypting streams (XChaCha20-Poly1305)
 - [x] Generating public & private keys (ed25519)
 - [x] Signing and verifying data with public and private keys (ed25519)
 - [x] Generating random numbers and strings (supports native randomness generators)
@@ -152,12 +153,47 @@ console.log(encrypted_text)
 // -> { encrypted_data: Uint8Array, password: "432fadvxasdf..."}
 ```
 
+**Works with streams**
+
+CDR supports encrypting streams out-of-the-box but process is a bit more involved than a one-liner. Please note that since streams are buffers, stream encryption works only with buffers.
+
+```javascript
+// key has to be 64 characters long
+var key = await cdr.generate_random_string(64)
+var readable_stream = Stream.Readable()
+
+// This will get called once encryption key and randomizer value (nonce) are ready - save these somewhere safe
+function credentials_callback(err, credentials) {
+  creds = credentials
+  // -> { key, nonce }
+})
+const stream_encryptor = cdr.encrypt_stream_with_key(key, credentials_callback) // no await available
+
+readable_stream.pipe(stream_encryptor).pipe(fs.createWriteStream("encrypted_output.bin"))
+readable_stream.push(Buffer.from("hello"))
+readable_stream.push(null) // tells the stream that this is the end
+```
+
 ### DECRYPTING
 Decrypting is very straight-forward. Data will be automatically converted into same format as it were when you encrypted it.
 ```javascript
 var decrypted_data = await cdr.decrypt_data(encrypted_data, password)
 
 console.log(decrypted_data) // in the same format as it was before encrypting
+```
+
+**Works with streams**
+
+CDR supports decrypting streams out-of-the-box but process is a bit more involved than a one-liner. Please note that since streams are buffers, stream decryption returns buffers so you have to convert your data back to the right format.
+
+```javascript
+var readable_stream = fs.createReadStream("encrypted_output.bin")
+
+// remember credentials you got when encrypting? you need them here.
+const stream_decryptor = cdr.decrypt_stream_with_key(key, nonce) // no await available
+
+readable_stream.pipe(stream_decryptor).pipe(convert_to_text).pipe(fs.createWriteStream("decrypted_output.txt"))
+
 ```
 
 ## SIGNING AND VERIFYING DATA
