@@ -9,7 +9,7 @@ module.exports = {
   collectCoverage: true,
   "globals": {
     "ts-jest": {
-      "useBabelrc": true
+      "babelConfig": true
     }
   }
 };

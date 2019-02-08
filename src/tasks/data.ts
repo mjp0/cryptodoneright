@@ -1,32 +1,30 @@
-// import sodium from "sodium-universal"
-import _sodium from "libsodium-wrappers-sumo"
 import async_helpers from "promised-callback"
-
-let global_sodium: any = null
+import sodium from "sodium-universal"
 
 export async function encrypt(data: Buffer, callback?: (err?: any, response?: Buffer) => any): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done } = async_helpers(resolve, reject, callback)
-    if (!global_sodium) {
-      await _sodium.ready
-      global_sodium = _sodium
-    }
-    const sodium = global_sodium
 
-    const key = sodium.crypto_secretstream_xchacha20poly1305_keygen()
-    const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
-    const [ state_out, nonce ] = [ res.state, res.header ]
-    const encrypted_data = sodium.crypto_secretstream_xchacha20poly1305_push(
-      state_out,
+    const key = Buffer.alloc(sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES)
+    sodium.crypto_secretstream_xchacha20poly1305_keygen(key)
+
+    const state = sodium.crypto_secretstream_xchacha20poly1305_state_new()
+    const header = Buffer.alloc(sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES)
+    sodium.crypto_secretstream_xchacha20poly1305_init_push(state, header, key)
+
+    const edata_len = data.length + sodium.crypto_secretstream_xchacha20poly1305_ABYTES
+    const encrypted_data = Buffer.alloc(edata_len)
+    sodium.crypto_secretstream_xchacha20poly1305_push(
+      state,
+      encrypted_data,
       data,
       null,
       sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL,
     )
-
     done({
       encrypted_data,
-      key: sodium.to_hex(key),
-      nonce: sodium.to_hex(nonce),
+      key: key.toString("hex"),
+      header: header.toString("hex"),
     })
   })
 }
@@ -42,12 +40,14 @@ export async function encrypt_with_key(
       error("bad key length")
       return
     }
-    // const key = sodium.from_hex(key_hex)
-    // const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
-    // const [ state_out, nonce ] = [ res.state, res.header ]
-    const { sodium, key, state_out, nonce } = await get_encryption_header(key_hex).catch(error)
-    const encrypted_data = sodium.crypto_secretstream_xchacha20poly1305_push(
-      state_out,
+
+    const { key, state, header } = await get_encryption_header(key_hex).catch(error)
+
+    const edata_len = data.length + sodium.crypto_secretstream_xchacha20poly1305_ABYTES
+    const encrypted_data = Buffer.alloc(edata_len)
+    sodium.crypto_secretstream_xchacha20poly1305_push(
+      state,
+      encrypted_data,
       data,
       null,
       sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL,
@@ -55,28 +55,30 @@ export async function encrypt_with_key(
 
     done({
       encrypted_data,
-      key: sodium.to_hex(key),
-      nonce: sodium.to_hex(nonce),
+      key: key.toString("hex"),
+      header: header.toString("hex"),
     })
   })
 }
 
-export async function encrypt_chunk(chunk: any, state_out: any, finalize?: boolean): Promise<any> {
+export async function encrypt_chunk(chunk: any, state: any, finalize?: boolean): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done } = async_helpers(resolve, reject, null)
-
-    if (!global_sodium) {
-      await _sodium.ready
-      global_sodium = _sodium
-    }
-    const sodium = global_sodium
 
     let TAG = sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
     if (finalize) {
       TAG = sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
     }
+    const edata_len = chunk.length + sodium.crypto_secretstream_xchacha20poly1305_ABYTES
+    const encrypted_data = Buffer.alloc(edata_len)
+    sodium.crypto_secretstream_xchacha20poly1305_push(
+      state,
+      encrypted_data,
+      chunk,
+      null,
+      TAG,
+    )
 
-    const encrypted_data = sodium.crypto_secretstream_xchacha20poly1305_push(state_out, chunk, null, TAG)
     done(encrypted_data)
   })
 }
@@ -91,47 +93,45 @@ export async function get_encryption_header(
       error("bad key length")
       return
     }
-    if (!global_sodium) {
-      await _sodium.ready
-      global_sodium = _sodium
-    }
-    const sodium = global_sodium
 
-    const key = sodium.from_hex(key_hex)
-    const res = sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
-    const [ state_out, nonce ] = [ res.state, res.header ]
-    done({ sodium, key, res, state_out, nonce })
+    const key = Buffer.from(key_hex, "hex")
+    const header = Buffer.alloc(sodium.crypto_secretstream_xchacha20poly1305_HEADERBYTES)
+    const state = sodium.crypto_secretstream_xchacha20poly1305_state_new()
+    sodium.crypto_secretstream_xchacha20poly1305_init_push(state, header, key)
+    done({ key, state, header })
   })
 }
 
 export async function decrypt(
   encrypted_data: Buffer,
   key_hex: string,
-  nonce_hex: string,
+  header_hex: string,
   callback?: (err?: any, response?: Buffer) => any,
 ): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done } = async_helpers(resolve, reject, callback)
 
-    if (!global_sodium) {
-      await _sodium.ready
-      global_sodium = _sodium
-    }
-    const sodium = global_sodium
+    const key = Buffer.from(key_hex, "hex")
+    const header = Buffer.from(header_hex, "hex")
+    const state = sodium.crypto_secretstream_xchacha20poly1305_state_new()
+    sodium.crypto_secretstream_xchacha20poly1305_init_pull(state, header, key)
 
-    const state_in = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
-      sodium.from_hex(nonce_hex),
-      sodium.from_hex(key_hex),
+    const dedata_len = encrypted_data.length - sodium.crypto_secretstream_xchacha20poly1305_ABYTES
+    const decrypted_data = Buffer.alloc(dedata_len)
+
+    sodium.crypto_secretstream_xchacha20poly1305_pull(
+      state,
+      decrypted_data,
+      sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL,
+      encrypted_data,
     )
-    const r1 = sodium.crypto_secretstream_xchacha20poly1305_pull(state_in, encrypted_data)
-
-    done(r1.message)
+    done(decrypted_data)
   })
 }
 
 export async function get_decryption_header(
   key_hex: string,
-  nonce_hex: string,
+  header_hex: string,
   callback?: (err?: any, response?: any) => any,
 ): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
@@ -140,33 +140,37 @@ export async function get_decryption_header(
       error("bad key length")
       return
     }
-    if (!global_sodium) {
-      await _sodium.ready
-      global_sodium = _sodium
-    }
-    const sodium = global_sodium
 
-    const state_in = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
-      sodium.from_hex(nonce_hex),
-      sodium.from_hex(key_hex),
-    )
-    done({ sodium, state_in })
+    const key = Buffer.from(key_hex, "hex")
+    const header = Buffer.from(header_hex, "hex")
+
+    const state = sodium.crypto_secretstream_xchacha20poly1305_state_new()
+    sodium.crypto_secretstream_xchacha20poly1305_init_pull(state, header, key)
+
+    done({ state })
   })
 }
 
-export async function decrypt_chunk(chunk: any, state_in: any, finalize?: boolean): Promise<any> {
+export async function decrypt_chunk(chunk: any, state: any, finalize?: boolean): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done } = async_helpers(resolve, reject, null)
 
-    if (!global_sodium) {
-      await _sodium.ready
-      global_sodium = _sodium
+    let TAG = sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
+    if (finalize) {
+      TAG = sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
     }
-    const sodium = global_sodium
 
-    const r1 = sodium.crypto_secretstream_xchacha20poly1305_pull(state_in, chunk)
+    const dedata_len = chunk.length - sodium.crypto_secretstream_xchacha20poly1305_ABYTES
+    const decrypted_data = Buffer.alloc(dedata_len)
 
-    done(r1.message)
+    sodium.crypto_secretstream_xchacha20poly1305_pull(
+      state,
+      decrypted_data,
+      TAG,
+      chunk,
+    )
+
+    done(decrypted_data)
   })
 }
 

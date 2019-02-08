@@ -20,7 +20,7 @@ export async function secure_password(
     const secured_password = await pw.hash(unsecured_password)
     const is_secure_password = await pw.verify(unsecured_password, secured_password)
     if (is_secure_password) {
-      done(secured_password.toString("hex"))
+      done(secured_password)
     } else {
       error("FAILURE_TO_VERIFY_HASH_CREATION")
     }
@@ -80,7 +80,7 @@ export async function encrypt_data(data: any, callback?: (err?: any, response?: 
 
     done({
       encrypted_data: encrypted_data.encrypted_data,
-      password: `${encrypted_data.key}|${encrypted_data.nonce}`,
+      password: `${encrypted_data.key}|${encrypted_data.header}`,
     })
   })
 }
@@ -116,7 +116,7 @@ export async function encrypt_data_with_key(
 
     done({
       encrypted_data: encrypted_data.encrypted_data,
-      password: `${encrypted_data.key}|${encrypted_data.nonce}`,
+      password: `${encrypted_data.key}|${encrypted_data.header}`,
     })
   })
 }
@@ -129,9 +129,9 @@ export async function decrypt_data(
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
 
-    const [ key, nonce ] = password.split("|")
+    const [ key, header ] = password.split("|")
 
-    const decrypted_data = await datas.decrypt(encrypted_data, key, nonce)
+    const decrypted_data = await datas.decrypt(encrypted_data, key, header)
 
     const decrypted_data_container: any = encrypted_data_schema.decode(decrypted_data)
     let decrypted_decoded_data: any = decrypted_data_container.data
@@ -173,22 +173,21 @@ export async function decrypt_data(
 
 export function encrypt_stream_with_key(
   key: string,
-  credentials_callback?: (err: any, credentials?: { key: string; nonce: string }) => void,
+  credentials_callback?: (err: any, credentials?: { key: string; header: string }) => void,
 ) {
   // const writableStream = new Stream.Writable()
   // const readableStream = new Stream.Readable()
   // writableStream.pipe(StreamChunkify(100)).pipe().pipe(readableStream)
   let session: any = {
-    sodium: null,
     key: null,
-    nonce: null,
-    state_out: null,
+    header: null,
+    state: null,
   }
 
   const transform = async function(this: any, chunk: any, enc: any, callback: any) {
     let rev = Buffer.from("")
     if (chunk) {
-      rev = await datas.encrypt_chunk(chunk, session.state_out).catch((error: any) => {
+      rev = await datas.encrypt_chunk(chunk, session.state).catch((error: any) => {
         throw new Error(error)
       })
     }
@@ -197,7 +196,7 @@ export function encrypt_stream_with_key(
   }
 
   const flush = async function(this: any, next: any) {
-    const rev = await datas.encrypt_chunk(Buffer.alloc(0), session.state_out, true).catch((error: any) => {
+    const rev = await datas.encrypt_chunk(Buffer.alloc(0), session.state, true).catch((error: any) => {
       throw new Error(error)
     })
     this.push(rev)
@@ -214,8 +213,8 @@ export function encrypt_stream_with_key(
 
     if (typeof credentials_callback === "function") {
       credentials_callback(null, {
-        key: session.sodium.to_hex(session.key),
-        nonce: session.sodium.to_hex(session.nonce),
+        key: session.key.toString("hex"),
+        header: session.header.toString("hex"),
       })
     }
     pipe.resume()
@@ -224,19 +223,15 @@ export function encrypt_stream_with_key(
   return pipe
 }
 
-export function decrypt_stream_with_key(key_hex: string, nonce_hex: string) {
-  // const writableStream = new Stream.Writable()
-  // const readableStream = new Stream.Readable()
-  // writableStream.pipe(StreamChunkify(100)).pipe().pipe(readableStream)
+export function decrypt_stream_with_key(key_hex: string, header_hex: string) {
   let session: any = {
-    sodium: null,
-    state_in: null,
+    state: null,
   }
 
   const transform = async function(this: any, chunk: any, enc: any, callback: any) {
     let decrypted_data = Buffer.from("")
     if (chunk) {
-      decrypted_data = await datas.decrypt_chunk(chunk, session.state_in).catch((error: any) => {
+      decrypted_data = await datas.decrypt_chunk(chunk, session.state).catch((error: any) => {
         throw new Error(error)
       })
     }
@@ -250,7 +245,7 @@ export function decrypt_stream_with_key(key_hex: string, nonce_hex: string) {
   const pipe = through2(transform, flush)
   pipe.pause()
 
-  datas.get_decryption_header(key_hex, nonce_hex, (err: any, headers: any) => {
+  datas.get_decryption_header(key_hex, header_hex, (err: any, headers: any) => {
     if (err) {
       throw new Error(err)
     }

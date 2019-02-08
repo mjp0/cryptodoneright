@@ -16,9 +16,9 @@ describe("Data", () => {
     let creds: any = {}
     const encrypted_buffer: Uint8Array[] = []
     const decrypted_buffer: Uint8Array[] = []
-    function credentials_callback(err: null, credentials?: { key: string; nonce: string }) {
+    function credentials_callback(err: null, credentials?: { key: string; header: string }) {
       creds = credentials
-      expect(creds.nonce).toBeDefined()
+      expect(creds.header).toBeDefined()
       expect(creds.key).toEqual(key)
     }
 
@@ -35,7 +35,7 @@ describe("Data", () => {
     stream_encryptor.on("finish", () => {
       const encrypted_combined = Buffer.concat(encrypted_buffer)
       expect(typeof encrypted_combined).toEqual("object")
-      const stream_decryptor = Crypto.decrypt_stream_with_key(creds.key, creds.nonce)
+      const stream_decryptor = Crypto.decrypt_stream_with_key(creds.key, creds.header)
       readableStreamDecrypt.pipe(stream_decryptor).pipe(writableStreamDecrypt)
       writableStreamDecrypt._write = (data: any | object) => {
         if (data) {

@@ -51,7 +51,7 @@ Then it's time to get going. First, import cryptodoneright
 
 `import cdr from 'cryptodoneright'`
 
-Or if you need to run it in the browser, grab /dist/cryptodoneright.min.js and add that on your page. All function will be under `cdr` global variable. **We don't recommend browser usage until we have size-optimized version of the library. This is being actively worked on. Sorry.**
+Or if you need to run it in the browser, grab /dist/cryptodoneright.min.js and add that on your page. All function will be under `cdr` global variable.
 
 ## HANDLING PASSWORDS SECURELY
 All password hashing is done with Argon2, the password-hashing function that won the Password Hashing Competition (https://password-hashing.net/)
@@ -254,4 +254,4 @@ CryptoDoneRight is meant to be so simple that you don't need to worry about mess
 If you want something more you should jump straight to libsodium that gives you the foundational tools: https://github.com/jedisct1/libsodium.js
 
 ## LICENSE
-MIT
+Apache 2.0

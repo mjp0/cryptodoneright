@@ -1,5 +1,5 @@
-import _sodium from "libsodium-wrappers-sumo"
 import async_helpers from "promised-callback"
+import sodium from "sodium-universal"
 import Crypto from "../"
 
 export async function sign_data(
@@ -10,9 +10,6 @@ export async function sign_data(
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
-
       const type = await Crypto.get_data_type(data).catch(error)
       // if not Buffer already, make it a Buffer
       if (type !== "bytes") {
@@ -22,9 +19,9 @@ export async function sign_data(
           data = Buffer.from(data.toString())
         }
       }
-
-      const signed_data = await sodium.crypto_sign_detached(data, sodium.from_hex(private_key))
-      done(sodium.to_hex(signed_data))
+      const signature = Buffer.alloc(sodium.crypto_sign_BYTES)
+      sodium.crypto_sign_detached(signature, data, Buffer.from(private_key, "hex"))
+      done(signature.toString("hex"))
     } catch (err) {
       error(err)
     }
@@ -40,9 +37,6 @@ export async function verify_data(
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
-
       const type = await Crypto.get_data_type(signed_data).catch(error)
       // if not Buffer already, make it a Buffer
       if (type !== "bytes") {
@@ -53,10 +47,10 @@ export async function verify_data(
         }
       }
 
-      const is_valid = await sodium.crypto_sign_verify_detached(
-        sodium.from_hex(signature),
+      const is_valid = sodium.crypto_sign_verify_detached(
+        Buffer.from(signature, "hex"),
         signed_data,
-        sodium.from_hex(public_key),
+        Buffer.from(public_key, "hex"),
       )
       done(is_valid)
     } catch (err) {

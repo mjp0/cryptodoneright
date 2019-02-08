@@ -2,7 +2,7 @@ import Crypto from "../src/"
 describe("Passwords", () => {
   test("should generate valid secure password that verifies (await/async)", async () => {
     const secured_password = await Crypto.secure_password("L0NG4NDH4RDP455")
-    expect(secured_password).toHaveLength(97)
+    expect(secured_password).toHaveLength(256)
 
     // Check that it generates different hashes
     const another_secured_password = await Crypto.secure_password("5KR1P7K1DD13Z")
@@ -16,13 +16,13 @@ describe("Passwords", () => {
   })
 
   test("should generate valid secure password that verifies (callback)", (done) => {
-    // Check that it's 97
+    // Check that it's 256
     Crypto.secure_password("L0NG4NDH4RDP455", (err: any, secured_password: string | undefined) => {
       if (!secured_password) {
         throw new Error("NULL_SECURE_PASSWORD")
       }
       expect(err).toBeFalsy()
-      expect(secured_password).toHaveLength(97)
+      expect(secured_password).toHaveLength(256)
 
       Crypto.secure_password("5KR1P7K1DD13Z", (err: any, another_secured_password?: string): any => {
         expect(err).toBeFalsy()

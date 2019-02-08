@@ -1,18 +1,18 @@
-import _sodium from "libsodium-wrappers-sumo"
 import async_helpers from "promised-callback"
+import sodium from "sodium-universal"
 
 export async function hash(PASSWORD: string, callback?: (err?: any, response?: string) => any): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
-
       const OPSLIMIT: number = sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE
       const MEMLIMIT: number = sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE
 
-      const hashed_password: string = sodium.crypto_pwhash_str(PASSWORD, OPSLIMIT, MEMLIMIT)
-      done(hashed_password)
+      const hashed_password: Buffer = Buffer.alloc(sodium.crypto_pwhash_STRBYTES)
+
+      sodium.crypto_pwhash_str_async(hashed_password, Buffer.from(PASSWORD), OPSLIMIT, MEMLIMIT, () => {
+        done(hashed_password.toString("hex"))
+      })
     } catch (err) {
       error(err)
     }
@@ -27,11 +27,17 @@ export async function verify(
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
+      const hash_buffer = Buffer.from(HASH, "hex")
+      if (hash_buffer.length !== sodium.crypto_pwhash_STRBYTES) {
+        return error(new Error("BAD_HASH"))
+      }
 
-      const is_verified: boolean = sodium.crypto_pwhash_str_verify(HASH, PASSWORD)
-      done(is_verified)
+      sodium.crypto_pwhash_str_verify_async(hash_buffer, Buffer.from(PASSWORD), (err: any, is_verified: boolean) => {
+        if (err) {
+          return error(err)
+        }
+        done(is_verified)
+      })
     } catch (err) {
       error(err)
     }

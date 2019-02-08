@@ -1,16 +1,13 @@
-import _sodium from "libsodium-wrappers-sumo"
 import async_helpers from "promised-callback"
+import sodium from "sodium-universal"
 
-export async function generate_master_key(
-  callback?: (err?: any, response?: string) => any,
-): Promise<any> {
+export async function generate_master_key(callback?: (err?: any, response?: string) => any): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
-      const master_key = await sodium.crypto_kdf_keygen()
-      done(await sodium.to_hex(master_key))
+      const key = Buffer.alloc(sodium.crypto_kdf_KEYBYTES)
+      sodium.crypto_kdf_keygen(key)
+      done(key.toString("hex"))
     } catch (err) {
       error(err)
     }
@@ -26,15 +23,11 @@ export async function derive_subkey(
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
-      const sub_key = await sodium.crypto_kdf_derive_from_key(
-        64,
-        subkey_id_number,
-        subkey_name,
-        sodium.from_hex(master_key),
-      )
-      done(await sodium.to_hex(sub_key))
+      const context = Buffer.alloc(sodium.crypto_kdf_CONTEXTBYTES, subkey_name)
+      const subkey = Buffer.alloc(sodium.crypto_kdf_BYTES_MAX)
+      sodium.crypto_kdf_derive_from_key(subkey, subkey_id_number, context, Buffer.from(master_key, "hex"))
+
+      done(subkey.toString("hex"))
     } catch (err) {
       error(err)
     }
@@ -48,14 +41,26 @@ export async function generate(
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
-      const rand = await sodium.randombytes_buf(sodium.crypto_sign_SEEDBYTES)
-      const raw_keys = await sodium.crypto_sign_seed_keypair(rand)
+
+      const rand = Buffer.alloc(sodium.crypto_sign_SEEDBYTES)
+      sodium.randombytes_buf(rand)
+
+      const key_pair = {
+        publicKey: Buffer.alloc(sodium.crypto_sign_PUBLICKEYBYTES),
+        privateKey: Buffer.alloc(sodium.crypto_sign_SECRETKEYBYTES),
+      }
+
+      if (seed) {
+        const digest = Buffer.alloc(32)
+        sodium.crypto_generichash(digest, Buffer.from(seed))
+        sodium.crypto_sign_seed_keypair(key_pair.publicKey, key_pair.privateKey, seed)
+      } else {
+        sodium.crypto_sign_keypair(key_pair.publicKey, key_pair.privateKey)
+      }
       const keys = {
-        type: raw_keys.keyType,
-        private: await sodium.to_hex(raw_keys.privateKey),
-        public: await sodium.to_hex(raw_keys.publicKey),
+        type: "Ed25519",
+        private: key_pair.privateKey.toString("hex"),
+        public: key_pair.publicKey.toString("hex"),
       }
       done(keys)
     } catch (e) {
@@ -71,10 +76,9 @@ export async function derive_public_key(
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
     try {
-      await _sodium.ready
-      const sodium = _sodium
-      const public_key = await sodium.crypto_sign_ed25519_sk_to_pk(Buffer.from(private_key, "hex"))
-      done(await sodium.to_hex(public_key))
+      // TODO: IMPLEMENT THIS AGAIN - ATM SODIUM-NATIVE HAS NO SUPPORT FOR THIS METHOD
+      // const public_key = await sodium.crypto_sign_ed25519_sk_to_pk(Buffer.from(private_key, "hex"))
+      done(null)
     } catch (err) {
       error(err)
     }
