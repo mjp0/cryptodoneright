@@ -46,7 +46,7 @@ This library will change accordingly if the security industry best practices cha
 Before doing anything else get CryptoDoneRight from NPM: 
 
 ```shell
-$ npm i cryptodoneright -g
+npm i -g cryptodoneright
 ```
 
 Then it's time to get going. First, import cryptodoneright
