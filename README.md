@@ -45,11 +45,15 @@ This library will change accordingly if the security industry best practices cha
 ## GETTING STARTED
 Before doing anything else get CryptoDoneRight from NPM: 
 
-> npm i cryptodoneright -g
+```shell
+$ npm i cryptodoneright -g
+```
 
 Then it's time to get going. First, import cryptodoneright
 
-`import cdr from 'cryptodoneright'`
+```
+import cdr from 'cryptodoneright'
+```
 
 Or if you need to run it in the browser, grab /dist/cryptodoneright.min.js and add that on your page. All function will be under `cdr` global variable.
 
