@@ -21,6 +21,8 @@
 CryptoDoneRight is a convenience API built on top of audited and secure cryptographic implementations like sodium (https://download.libsodium.org/doc/). We do all the necessary steps behind the scenes for everyday app tasks like hashing passwords correctly or encrypting sensitive data for storing.
 
 ## FEATURES
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright?ref=badge_shield)
+
 - Secures, signs and verifies passwords and all types of data
 - Works with NodeJS streams out-of-the-box
 - Seamless encryption and decryption flow: `string|number|object|buffer in > string|number|object|buffer out`
@@ -259,3 +261,5 @@ If you want something more you should jump straight to libsodium that gives you 
 
 ## LICENSE
 Apache 2.0
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright?ref=badge_large)
