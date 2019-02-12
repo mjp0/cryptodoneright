@@ -1,3 +1,3 @@
 import api from "./src"
 
-export default api
+module.exports = api

@@ -5,10 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Jest", // This is the configuration name you will see in debug sidebar
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/dist/index.js"
+      "port": 5858,
+      "address": "localhost",
+      "stopOnEntry": false,
+      "runtimeExecutable": "${workspaceRoot}/Machian/node.sh",
+      "env": {
+        "NODE_ENV": "production" // You can setup here any env vars you 
+      },
+      "runtimeArgs": [
+        "--debug-brk",
+        "./node_modules/.bin/jest", // Path to Jest
+        "-i"
+      ],
+      "cwd": "${workspaceRoot}"
     }
   ]
 }
