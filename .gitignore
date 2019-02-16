@@ -4,3 +4,4 @@ _dev
 coverage
 dist
 .cache
+.vscode
