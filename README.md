@@ -25,7 +25,7 @@ This library will change accordingly if the security industry best practices cha
 - [x] Generating random numbers and strings (supports native randomness generators)
   
 #### Need more functionality?
-- Need something more? Tell me at https://twitter.com/markopolojarvi.
+- Need something more? Tell us at https://twitter.com/machianists.
 
 ## GETTING STARTED
 Before doing anything else get CryptoDoneRight from NPM: 
