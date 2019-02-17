@@ -38,7 +38,7 @@ CryptoDoneRight is a convenience API built on top of audited and secure cryptogr
 - Seamless encryption and decryption flow: `string|number|object|buffer in > string|number|object|buffer out`
 - No configuration required, everything is preset to best practices
 - Everything is a one-liner
-- Support both pure javascript and native modules
+- Supports both pure javascript and native modules
 
 This library will change accordingly if the security industry best practices change. We also try to offer tools for migrating old data up to the new standards so upgrading old data would be just a click away - by making your job easier to migrate your system to have better security measures, we protect our own data as your users better.
 
