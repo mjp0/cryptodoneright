@@ -36,8 +36,8 @@ export async function encrypt_with_key(
 ): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
-    if (key_hex.length !== 64) {
-      error("bad key length")
+    if (key_hex.length !== sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES * 2) {
+      error({ key_hex: key_hex.length, required: sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES * 2})
       return
     }
 
@@ -89,7 +89,7 @@ export async function get_encryption_header(
 ): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
-    if (key_hex.length !== 64) {
+    if (key_hex.length !== sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES * 2) {
       error("bad key length")
       return
     }

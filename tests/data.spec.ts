@@ -78,7 +78,7 @@ describe("Data", () => {
     const decrypted_text = await Crypto.decrypt_data(encrypted_text.encrypted_data, encrypted_text.password)
     expect(decrypted_text).toEqual(text)
   })
-
+  
   test("should encrypt and decrypt json", async () => {
     const json = { foo: "bar " }
     const encrypted_json = await Crypto.encrypt_data(json)

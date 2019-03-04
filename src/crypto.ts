@@ -9,6 +9,7 @@ import * as keys from "./tasks/keys"
 import pw from "./tasks/passwords"
 import * as random from "./tasks/random"
 import * as signverify from "./tasks/sign_verify"
+// import { error } from "./utils"
 
 // PASSWORD HASHING ///////////////////////////////////////////////////////////////////////////////////
 export async function secure_password(
@@ -107,10 +108,7 @@ export async function encrypt_data_with_key(
 
     const encrypted_data_container = encrypted_data_schema.create({ data, type })
 
-    // console.log(`message = ${JSON.stringify(message)}`)
-
     const serialized_data = encrypted_data_schema.encode(encrypted_data_container).finish()
-    // console.log(`buffer = ${Array.prototype.toString.call(buffer)}`)
 
     const encrypted_data = await datas.encrypt_with_key(Buffer.from(serialized_data), key)
 
@@ -264,7 +262,7 @@ export async function generate_keys(
 ): Promise<any> {
   return await new Promise(async (resolve: any, reject: any) => {
     const { done, error } = async_helpers(resolve, reject, callback)
-    const keypair = await keys.generate().catch(error)
+    const keypair = await keys.generate(seed || null).catch(error)
     done(keypair)
   })
 }
