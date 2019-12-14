@@ -1,6 +1,6 @@
 {
   "name": "cryptodoneright",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "keywords": [
     "crypto",
     "libsodium",
@@ -16,11 +16,11 @@
   },
   "main": "dist/index.js",
   "repository": {
-    "url": "git+https://github.com/machianists/cryptodoneright",
+    "url": "git+https://github.com/markopolojarvi/cryptodoneright",
     "type": "git"
   },
   "bugs": {
-    "url": "https://github.com/machianists/cryptodoneright/issues"
+    "url": "https://github.com/markopolojarvi/cryptodoneright/issues"
   },
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
@@ -33,20 +33,20 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "promised-callback": "^1.1.0",
+    "promised-callback": "^1.2.3",
     "protobufjs": "^6.8.8",
     "sodium-universal": "^2.0.0",
     "stream-chunkify": "^1.0.0",
     "through2": "^3.0.1"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.10",
+    "@types/jest": "^24.0.23",
     "@types/through2": "^2.0.34",
-    "jest": "^23.6.0",
-    "nanoassert": "^1.1.0",
-    "parcel": "^1.11.0",
-    "ts-jest": "^23.10.5",
-    "tslint": "^5.13.1",
-    "typescript": "^3.3.3333"
+    "jest": "^24.9.0",
+    "nanoassert": "^2.0.0",
+    "parcel": "^1.12.4",
+    "ts-jest": "^24.2.0",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.3"
   }
 }

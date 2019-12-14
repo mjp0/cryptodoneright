@@ -1,7 +1,7 @@
 ![CryptoDoneRight](header.png)
 > This library gives you ready-to-go best practice crypto as one-liner functions
 
-[![license](https://img.shields.io/badge/license-apache--2.0-brightgreen.svg)](LICENSE) [![license](https://img.shields.io/badge/lang-typescript-brightgreen.svg)](http://typescriptland.com) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright?ref=badge_shield) [![web-machian](https://img.shields.io/badge/web-machian.com-blue.svg)](https://machian.com) [![twitter-machianists](https://img.shields.io/badge/twitter-@machianists-blue.svg)](https://twitter.com/machianists)
+[![license](https://img.shields.io/badge/license-apache--2.0-brightgreen.svg)](LICENSE) [![license](https://img.shields.io/badge/lang-typescript-brightgreen.svg)](http://typescriptland.com) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmachianists%2Fcryptodoneright?ref=badge_shield)
 
 CryptoDoneRight is a convenience API built on top of audited and secure cryptographic implementations like sodium (https://download.libsodium.org/doc/). We do all the necessary steps behind the scenes for everyday app tasks like hashing passwords correctly or encrypting sensitive data for storing.
 
@@ -25,7 +25,7 @@ This library will change accordingly if the security industry best practices cha
 - [x] Generating random numbers and strings (supports native randomness generators)
   
 #### Need more functionality?
-- Need something more? Tell us at https://twitter.com/machianists.
+- Need something more? Tell me at https://twitter.com/markopolojarvi.
 
 ## GETTING STARTED
 Before doing anything else get CryptoDoneRight from NPM: 
